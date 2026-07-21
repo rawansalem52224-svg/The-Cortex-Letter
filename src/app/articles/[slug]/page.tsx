@@ -11,6 +11,7 @@ import { ArticleCard } from "@/components/article-card";
 import { ReadingProgress } from "@/components/reading-progress";
 import { LikeButton } from "@/components/like-button";
 import { FavoriteButton } from "@/components/favorite-button";
+import { ShareButton } from "@/components/share-button";
 import { CommentSection } from "@/components/comment-section";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -91,6 +92,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             signedIn={Boolean(user)}
             initialFavorited={reactions.isFavorited}
           />
+          <ShareButton title={post.title} />
         </div>
 
         <div className="mt-14">
