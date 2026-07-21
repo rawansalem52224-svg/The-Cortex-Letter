@@ -244,6 +244,60 @@ create policy "Admins can delete any comment"
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 
 -- ─────────────────────────────────────────────────────────────
+-- podcast_episodes: admin-managed, not open to writer applicants
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.podcast_episodes (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  title text not null,
+  description text not null default '',
+  guest_name text not null default '',
+  guest_role text not null default '',
+  guest_bio text,
+  cover_image text,
+  audio_embed_url text,
+  spotify_url text,
+  apple_url text,
+  youtube_url text,
+  episode_number int,
+  duration_minutes int,
+  status text not null default 'draft' check (status in ('draft', 'published')),
+  author_id uuid not null references public.profiles (id) on delete cascade,
+  published_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists podcast_episodes_status_idx on public.podcast_episodes (status);
+
+alter table public.podcast_episodes enable row level security;
+
+create policy "Published episodes are publicly readable"
+  on public.podcast_episodes for select
+  using (status = 'published');
+
+create policy "Admins can read every episode"
+  on public.podcast_episodes for select
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+create policy "Admins can create episodes"
+  on public.podcast_episodes for insert
+  with check (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+create policy "Admins can update episodes"
+  on public.podcast_episodes for update
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+create policy "Admins can delete episodes"
+  on public.podcast_episodes for delete
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+drop trigger if exists podcast_episodes_set_updated_at on public.podcast_episodes;
+create trigger podcast_episodes_set_updated_at
+  before update on public.podcast_episodes
+  for each row execute procedure public.set_updated_at();
+
+-- ─────────────────────────────────────────────────────────────
 -- Make yourself an admin after your first signup:
 --
 --   update public.profiles set role = 'admin' where id =

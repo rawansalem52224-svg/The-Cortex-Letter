@@ -74,3 +74,25 @@ export type Comment = {
   content: string;
   created_at: string;
 };
+
+export type PodcastEpisode = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  guest_name: string;
+  guest_role: string;
+  guest_bio: string | null;
+  cover_image: string | null;
+  audio_embed_url: string | null;
+  spotify_url: string | null;
+  apple_url: string | null;
+  youtube_url: string | null;
+  episode_number: number | null;
+  duration_minutes: number | null;
+  status: PostStatus;
+  author_id: string;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+};

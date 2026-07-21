@@ -39,6 +39,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/podcast" className="text-sm text-muted transition-colors hover:text-ink">
+                  Podcast
+                </Link>
+              </li>
+              <li>
                 <Link href="/write-for-us" className="text-sm text-muted transition-colors hover:text-ink">
                   Write for us
                 </Link>

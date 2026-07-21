@@ -6,6 +6,7 @@ import { SignalPulse } from "@/components/signal-pulse";
 
 const NAV_LINKS = [
   { href: "/articles", label: "Articles" },
+  { href: "/podcast", label: "Podcast" },
   { href: "/about", label: "About" },
   { href: "/write-for-us", label: "Write for us" },
 ];

@@ -54,6 +54,21 @@ Supabase (sign in, applications, newsletter).
   do the same for every post from **Admin -> All posts**.
 - Posts are written in Markdown (headings, **bold**, *italics*, `>` blockquotes, links, lists).
 
+## Managing the podcast
+
+Podcast episodes are admin-only (not part of the writer application workflow) — you add them
+from **Admin -> Podcast -> New episode**. Each episode has:
+
+- Title, description (Markdown supported), guest name/role/bio
+- An optional **audio embed URL** — for Spotify, open the episode, click **Share -> Embed
+  episode**, and copy the `src="..."` URL from the generated code
+- Optional direct links to Spotify, Apple Podcasts, and YouTube (shown as buttons even without an
+  embed)
+- Episode number and duration, shown as `Episode 3 · 42 min`
+
+Like posts, episodes save as a draft first — publish when ready from the same edit screen or the
+episode list.
+
 ## Replacing the placeholder articles
 
 The six placeholder articles in [`src/lib/seed-data.ts`](src/lib/seed-data.ts) are shown until
@@ -69,7 +84,9 @@ You're free to delete `seed-data.ts` entirely once you have real content.
   categorical topic colors (`src/lib/categories.ts`).
 - **Signature motif**: the "signal pulse" — a dot traveling along a line like an action
   potential, used once in the header on load and again as the reading-progress indicator on
-  article pages (`src/components/signal-pulse.tsx`, `src/components/reading-progress.tsx`).
+  article pages (`src/components/signal-pulse.tsx`, `src/components/reading-progress.tsx`). The
+  podcast section echoes this with a waveform bar motif (`src/components/waveform.tsx`) — sound
+  wave as neural signal.
 
 All design tokens live in [`src/app/globals.css`](src/app/globals.css) — change the CSS custom
 properties there to retheme the whole site.
