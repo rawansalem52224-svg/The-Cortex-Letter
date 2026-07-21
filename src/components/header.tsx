@@ -40,12 +40,20 @@ export async function Header() {
 
         <div className="hidden items-center gap-4 md:flex">
           {profile ? (
-            <Link
-              href={dashboardHref ?? "/account"}
-              className="font-data text-sm text-muted transition-colors hover:text-ink"
-            >
-              {dashboardHref ? "Dashboard" : profile.full_name || "Account"}
-            </Link>
+            <>
+              <Link
+                href="/favorites"
+                className="font-data text-sm text-muted transition-colors hover:text-ink"
+              >
+                Favorites
+              </Link>
+              <Link
+                href={dashboardHref ?? "/account"}
+                className="font-data text-sm text-muted transition-colors hover:text-ink"
+              >
+                {dashboardHref ? "Dashboard" : profile.full_name || "Account"}
+              </Link>
+            </>
           ) : (
             <Link href="/login" className="font-data text-sm text-muted transition-colors hover:text-ink">
               Sign in

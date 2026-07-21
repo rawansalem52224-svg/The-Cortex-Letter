@@ -179,6 +179,71 @@ create policy "Admins can read subscribers"
   using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
 
 -- ─────────────────────────────────────────────────────────────
+-- post_reactions: likes (public counts) and favorites (private reading list)
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.post_reactions (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  type text not null check (type in ('like', 'favorite')),
+  created_at timestamptz not null default now(),
+  unique (post_id, user_id, type)
+);
+
+create index if not exists post_reactions_post_idx on public.post_reactions (post_id);
+create index if not exists post_reactions_user_idx on public.post_reactions (user_id);
+
+alter table public.post_reactions enable row level security;
+
+create policy "Likes are publicly visible"
+  on public.post_reactions for select
+  using (type = 'like');
+
+create policy "Users can read their own reactions"
+  on public.post_reactions for select
+  using (auth.uid() = user_id);
+
+create policy "Users can add their own reactions"
+  on public.post_reactions for insert
+  with check (auth.uid() = user_id);
+
+create policy "Users can remove their own reactions"
+  on public.post_reactions for delete
+  using (auth.uid() = user_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- comments
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.comments (
+  id uuid primary key default gen_random_uuid(),
+  post_id uuid not null references public.posts (id) on delete cascade,
+  author_id uuid not null references public.profiles (id) on delete cascade,
+  author_name text not null default '',
+  content text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists comments_post_idx on public.comments (post_id);
+
+alter table public.comments enable row level security;
+
+create policy "Comments are readable on published posts"
+  on public.comments for select
+  using (exists (select 1 from public.posts p where p.id = comments.post_id and p.status = 'published'));
+
+create policy "Signed-in readers can comment"
+  on public.comments for insert
+  with check (auth.uid() = author_id);
+
+create policy "Authors can delete their own comments"
+  on public.comments for delete
+  using (auth.uid() = author_id);
+
+create policy "Admins can delete any comment"
+  on public.comments for delete
+  using (exists (select 1 from public.profiles p where p.id = auth.uid() and p.role = 'admin'));
+
+-- ─────────────────────────────────────────────────────────────
 -- Make yourself an admin after your first signup:
 --
 --   update public.profiles set role = 'admin' where id =

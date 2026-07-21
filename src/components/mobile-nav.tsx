@@ -47,12 +47,21 @@ export function MobileNav({
                 {link.label}
               </Link>
             ))}
+            {isSignedIn && (
+              <Link
+                href="/favorites"
+                onClick={() => setOpen(false)}
+                className="font-data border-b border-border py-3.5 text-base text-ink"
+              >
+                Favorites
+              </Link>
+            )}
             <Link
               href={isSignedIn ? dashboardHref ?? "/account" : "/login"}
               onClick={() => setOpen(false)}
               className="font-data border-b border-border py-3.5 text-base text-ink"
             >
-              {isSignedIn ? "Dashboard" : "Sign in"}
+              {isSignedIn ? dashboardHref ? "Dashboard" : "Account" : "Sign in"}
             </Link>
             <div className="pt-4">
               <ThemeToggle />

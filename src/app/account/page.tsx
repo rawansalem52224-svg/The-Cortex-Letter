@@ -20,17 +20,30 @@ export default async function AccountPage() {
       </h1>
       <p className="mt-2 text-muted">{user.email}</p>
 
-      <div className="mt-10 rounded-2xl border border-border bg-surface p-8">
-        <p className="font-display text-lg font-semibold text-ink">Want to write for us?</p>
-        <p className="mt-2 text-muted">
-          Readers can apply for publishing access from the Write for us page.
-        </p>
-        <Link
-          href="/write-for-us"
-          className="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-data text-sm font-medium text-bg"
-        >
-          Apply to write
-        </Link>
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-surface p-8">
+          <p className="font-display text-lg font-semibold text-ink">Your favorites</p>
+          <p className="mt-2 text-muted">Everything you&rsquo;ve saved to read later, in one place.</p>
+          <Link
+            href="/favorites"
+            className="mt-5 inline-block rounded-full border border-border-strong px-6 py-3 font-data text-sm font-medium text-ink"
+          >
+            View favorites
+          </Link>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-8">
+          <p className="font-display text-lg font-semibold text-ink">Want to write for us?</p>
+          <p className="mt-2 text-muted">
+            Readers can apply for publishing access from the Write for us page.
+          </p>
+          <Link
+            href="/write-for-us"
+            className="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-data text-sm font-medium text-bg"
+          >
+            Apply to write
+          </Link>
+        </div>
       </div>
 
       <form action={signOut} className="mt-8">

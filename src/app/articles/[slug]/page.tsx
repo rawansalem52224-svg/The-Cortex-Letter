@@ -4,9 +4,14 @@ import { format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
+import { getReactionSummary } from "@/lib/reactions";
+import { getCurrentUser } from "@/lib/profile";
 import { CategoryPill } from "@/components/category-pill";
 import { ArticleCard } from "@/components/article-card";
 import { ReadingProgress } from "@/components/reading-progress";
+import { LikeButton } from "@/components/like-button";
+import { FavoriteButton } from "@/components/favorite-button";
+import { CommentSection } from "@/components/comment-section";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -23,7 +28,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const all = await getPublishedPosts();
+  const [all, reactions, user] = await Promise.all([
+    getPublishedPosts(),
+    getReactionSummary(post.id),
+    getCurrentUser(),
+  ]);
   const more = all.filter((p) => p.id !== post.id && p.category === post.category).slice(0, 2);
   const date = post.published_at ?? post.created_at;
 
@@ -66,6 +75,26 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
         <div className="prose-article">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content}</ReactMarkdown>
+        </div>
+
+        <div className="mt-10 flex flex-wrap items-center gap-3 border-y border-border py-6">
+          <LikeButton
+            postId={post.id}
+            slug={post.slug}
+            signedIn={Boolean(user)}
+            initialLiked={reactions.isLiked}
+            initialCount={reactions.likeCount}
+          />
+          <FavoriteButton
+            postId={post.id}
+            slug={post.slug}
+            signedIn={Boolean(user)}
+            initialFavorited={reactions.isFavorited}
+          />
+        </div>
+
+        <div className="mt-14">
+          <CommentSection postId={post.id} slug={post.slug} />
         </div>
       </div>
 

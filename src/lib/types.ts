@@ -49,3 +49,28 @@ export type NewsletterSubscriber = {
   email: string;
   created_at: string;
 };
+
+export type ReactionType = "like" | "favorite";
+
+export type PostReaction = {
+  id: string;
+  post_id: string;
+  user_id: string;
+  type: ReactionType;
+  created_at: string;
+};
+
+export type ReactionSummary = {
+  likeCount: number;
+  isLiked: boolean;
+  isFavorited: boolean;
+};
+
+export type Comment = {
+  id: string;
+  post_id: string;
+  author_id: string;
+  author_name: string;
+  content: string;
+  created_at: string;
+};
