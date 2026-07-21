@@ -19,6 +19,11 @@ export default function LoginPage() {
       <div className="mt-8">
         <AuthForm mode="login" />
       </div>
+      <p className="mt-6 text-sm text-muted">
+        <Link href="/forgot-password" className="text-accent-strong hover:underline">
+          Forgot your password?
+        </Link>
+      </p>
     </div>
   );
 }
