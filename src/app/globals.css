@@ -1,0 +1,266 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface-hover: #eef0f4;
+  --ink: #171922;
+  --muted: #5b6070;
+  --border: #e1e4ea;
+  --border-strong: #c7ccd6;
+
+  --accent: #1c9c90;
+  --accent-strong: #147a71;
+  --accent-soft: #d9f0ed;
+  --violet: #6b5ca5;
+  --violet-soft: #e8e4f4;
+
+  --cat-memory: #6b5ca5;
+  --cat-sleep: #4c6fd6;
+  --cat-plasticity: #1c9c90;
+  --cat-perception: #b8792f;
+  --cat-emotion: #b8496c;
+  --cat-clinical: #6b7280;
+
+  --shadow-color: 220 20% 30%;
+}
+
+.dark {
+  --bg: #14161f;
+  --surface: #1b1e2a;
+  --surface-hover: #232734;
+  --ink: #e8e9ee;
+  --muted: #9096ab;
+  --border: #2a2d3a;
+  --border-strong: #383c4c;
+
+  --accent: #3fd1c4;
+  --accent-strong: #6adfd4;
+  --accent-soft: #1c3733;
+  --violet: #a99bdb;
+  --violet-soft: #2c2a42;
+
+  --cat-memory: #a99bdb;
+  --cat-sleep: #8ba3f0;
+  --cat-plasticity: #3fd1c4;
+  --cat-perception: #d6a35c;
+  --cat-emotion: #dd8aa4;
+  --cat-clinical: #9099a8;
+
+  --shadow-color: 220 40% 2%;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-violet: var(--violet);
+  --color-violet-soft: var(--violet-soft);
+
+  --color-cat-memory: var(--cat-memory);
+  --color-cat-sleep: var(--cat-sleep);
+  --color-cat-plasticity: var(--cat-plasticity);
+  --color-cat-perception: var(--cat-perception);
+  --color-cat-emotion: var(--cat-emotion);
+  --color-cat-clinical: var(--cat-clinical);
+
+  --font-display: var(--font-fraunces);
+  --font-body: var(--font-plex-sans);
+  --font-data: var(--font-plex-mono);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--surface);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: var(--font-display), Georgia, serif;
+  }
+
+  .font-data {
+    font-family: var(--font-data), ui-monospace, monospace;
+  }
+
+  .eyebrow {
+    font-family: var(--font-data), ui-monospace, monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .card-shadow {
+    box-shadow: 0 1px 2px hsl(var(--shadow-color) / 0.06), 0 8px 24px -12px hsl(var(--shadow-color) / 0.18);
+  }
+
+  /* Article prose */
+  .prose-article {
+    font-family: var(--font-body), sans-serif;
+    color: var(--ink);
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+
+  .prose-article p {
+    margin-bottom: 1.5em;
+  }
+
+  .prose-article h2 {
+    font-family: var(--font-display), serif;
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-top: 2.5em;
+    margin-bottom: 0.75em;
+    line-height: 1.25;
+  }
+
+  .prose-article h3 {
+    font-family: var(--font-display), serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2em;
+    margin-bottom: 0.6em;
+  }
+
+  .prose-article a {
+    color: var(--accent-strong);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .prose-article ul,
+  .prose-article ol {
+    margin: 0 0 1.5em 1.25em;
+  }
+
+  .prose-article li {
+    margin-bottom: 0.5em;
+  }
+
+  .prose-article li::marker {
+    color: var(--accent);
+  }
+
+  .prose-article blockquote {
+    font-family: var(--font-display), serif;
+    font-style: italic;
+    font-size: 1.4rem;
+    line-height: 1.5;
+    border-left: 3px solid var(--accent);
+    padding-left: 1.25em;
+    margin: 2em 0;
+    color: var(--ink);
+  }
+
+  .prose-article code {
+    font-family: var(--font-data), monospace;
+    background: var(--surface-hover);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  .prose-article img {
+    border-radius: 8px;
+    margin: 2em 0;
+  }
+
+  .prose-article hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 3em 0;
+  }
+}
+
+/* Signal pulse: an action potential traveling along an axon line. */
+@keyframes signal-travel {
+  0% {
+    left: -2%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes signal-fire {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--shadow-color) / 0);
+  }
+}
+
+.signal-line {
+  position: relative;
+  height: 1px;
+  background: var(--border);
+  overflow: visible;
+}
+
+.signal-dot {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 4px var(--accent-soft), 0 0 16px 2px var(--accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .signal-dot[data-animated="true"] {
+    animation: signal-travel 2.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s 1 both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-dot[data-animated="true"] {
+    left: 40%;
+    opacity: 1;
+  }
+}
