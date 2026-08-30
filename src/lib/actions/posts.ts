@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import readingTime from "reading-time";
+import DOMPurify from "isomorphic-dompurify";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentProfile } from "@/lib/profile";
@@ -19,11 +20,17 @@ async function requireWriter() {
   return profile;
 }
 
+/** Plain-text rendering of saved HTML, used for reading-time and emptiness checks. */
+function stripHtml(html: string) {
+  return html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
 function readFields(formData: FormData) {
+  const rawContent = String(formData.get("content") ?? "").trim();
   return {
     title: String(formData.get("title") ?? "").trim(),
     excerpt: String(formData.get("excerpt") ?? "").trim(),
-    content: String(formData.get("content") ?? "").trim(),
+    content: DOMPurify.sanitize(rawContent),
     category: String(formData.get("category") ?? "").trim(),
     coverImage: String(formData.get("cover_image") ?? "").trim(),
   };
@@ -37,7 +44,7 @@ export async function createPost(_prevState: PostFormState, formData: FormData):
 
   const { title, excerpt, content, category, coverImage } = readFields(formData);
 
-  if (!title || !excerpt || !content || !isCategorySlug(category)) {
+  if (!title || !excerpt || !stripHtml(content) || !isCategorySlug(category)) {
     return { status: "error", message: "Fill in the title, excerpt, content, and topic." };
   }
 
@@ -51,7 +58,7 @@ export async function createPost(_prevState: PostFormState, formData: FormData):
     slug = `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
   }
 
-  const stats = readingTime(content);
+  const stats = readingTime(stripHtml(content));
 
   const { data: created, error } = await supabase!
     .from("posts")
@@ -90,12 +97,12 @@ export async function updatePost(
 
   const { title, excerpt, content, category, coverImage } = readFields(formData);
 
-  if (!title || !excerpt || !content || !isCategorySlug(category)) {
+  if (!title || !excerpt || !stripHtml(content) || !isCategorySlug(category)) {
     return { status: "error", message: "Fill in the title, excerpt, content, and topic." };
   }
 
   const supabase = await createClient();
-  const stats = readingTime(content);
+  const stats = readingTime(stripHtml(content));
 
   const query = supabase!
     .from("posts")

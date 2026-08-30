@@ -1,9 +1,10 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import type { PostFormState } from "@/lib/actions/posts";
 import { CATEGORY_LIST } from "@/lib/categories";
 import type { Post } from "@/lib/types";
+import RichTextEditor from "@/components/rich-text-editor";
 
 const initialState: PostFormState = { status: "idle" };
 
@@ -17,6 +18,7 @@ export function PostForm({
   submitLabel: string;
 }) {
   const [state, formAction, isPending] = useActionState(action, initialState);
+  const [content, setContent] = useState(defaults?.content ?? "");
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
@@ -85,18 +87,11 @@ export function PostForm({
       </div>
 
       <div>
-        <label htmlFor="content" className="font-data text-xs uppercase tracking-wide text-muted">
-          Content (Markdown supported)
-        </label>
-        <textarea
-          id="content"
-          name="content"
-          required
-          rows={18}
-          defaultValue={defaults?.content}
-          placeholder={"## A subheading\n\nWrite your article here. Use **bold**, *italics*, and > blockquotes."}
-          className="font-data mt-2 w-full rounded-lg border border-border-strong bg-surface px-4 py-3 text-sm leading-relaxed text-ink placeholder:text-muted focus:border-accent"
-        />
+        <label className="font-data text-xs uppercase tracking-wide text-muted">Content</label>
+        <div className="mt-2">
+          <RichTextEditor value={content} onChange={setContent} />
+        </div>
+        <input type="hidden" name="content" value={content} />
       </div>
 
       {state.message && (

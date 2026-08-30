@@ -67,6 +67,8 @@ create table if not exists public.posts (
   updated_at timestamptz not null default now()
 );
 
+comment on column public.posts.content is 'Sanitized HTML produced by the rich text editor (not Markdown).';
+
 create index if not exists posts_status_idx on public.posts (status);
 create index if not exists posts_category_idx on public.posts (category);
 create index if not exists posts_author_idx on public.posts (author_id);
