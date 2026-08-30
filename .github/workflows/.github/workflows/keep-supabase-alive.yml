@@ -1,0 +1,18 @@
+name: Keep Supabase Project Alive
+
+# Runs twice a week so the project never hits 7 days of inactivity
+on:
+  schedule:
+    - cron: '0 13 * * 1,4'   # Mondays & Thursdays at 1:00 PM UTC
+  workflow_dispatch:          # lets you also trigger it manually from the Actions tab
+
+jobs:
+  ping-project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase project
+        run: |
+          curl -s -X GET \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
