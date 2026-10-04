@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/profile";
+import { signOut } from "@/lib/actions/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { SignalPulse } from "@/components/signal-pulse";
@@ -54,6 +55,14 @@ export async function Header() {
               >
                 {dashboardHref ? "Dashboard" : profile.full_name || "Account"}
               </Link>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="font-data text-sm text-muted transition-colors hover:text-ink"
+                >
+                  Sign out
+                </button>
+              </form>
             </>
           ) : (
             <Link href="/login" className="font-data text-sm text-muted transition-colors hover:text-ink">

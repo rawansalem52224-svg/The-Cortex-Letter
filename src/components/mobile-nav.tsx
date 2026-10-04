@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { signOut } from "@/lib/actions/auth";
 
 export function MobileNav({
   links,
@@ -63,6 +64,17 @@ export function MobileNav({
             >
               {isSignedIn ? dashboardHref ? "Dashboard" : "Account" : "Sign in"}
             </Link>
+            {isSignedIn && (
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  onClick={() => setOpen(false)}
+                  className="font-data w-full border-b border-border py-3.5 text-left text-base text-ink"
+                >
+                  Sign out
+                </button>
+              </form>
+            )}
             <div className="pt-4">
               <ThemeToggle />
             </div>
