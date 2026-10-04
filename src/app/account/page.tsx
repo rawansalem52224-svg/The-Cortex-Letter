@@ -2,7 +2,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { getCurrentProfile, getCurrentUser } from "@/lib/profile";
-import { signOut } from "@/lib/actions/auth";
 
 export const metadata: Metadata = { title: "Account — The Cortex Letter" };
 
@@ -45,12 +44,6 @@ export default async function AccountPage() {
           </Link>
         </div>
       </div>
-
-      <form action={signOut} className="mt-8">
-        <button type="submit" className="font-data text-sm text-muted hover:text-ink">
-          Sign out
-        </button>
-      </form>
     </div>
   );
 }
