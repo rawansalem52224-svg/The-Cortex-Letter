@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import readingTime from "reading-time";
 import DOMPurify from "isomorphic-dompurify";
 import { createClient } from "@/lib/supabase/server";
@@ -9,6 +10,7 @@ import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentProfile } from "@/lib/profile";
 import { slugify } from "@/lib/slugify";
 import { isCategorySlug } from "@/lib/categories";
+import { notifySubscribers } from "@/lib/email/notify-subscribers";
 
 export type PostFormState = { status: "idle" | "error"; message?: string };
 
@@ -139,6 +141,10 @@ export async function setPostStatus(postId: string, status: "draft" | "published
 
   if (profile.role === "admin") await query;
   else await query.eq("author_id", profile.id);
+
+  // Email subscribers after the response is sent; this only fires on the first publish
+  // and never throws, so it can't block or undo publishing.
+  if (status === "published") after(() => notifySubscribers("post", postId));
 
   revalidatePath("/dashboard");
   revalidatePath("/admin/posts");

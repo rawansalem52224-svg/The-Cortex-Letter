@@ -2,10 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentProfile } from "@/lib/profile";
 import { slugify } from "@/lib/slugify";
+import { notifySubscribers } from "@/lib/email/notify-subscribers";
 
 export type EpisodeFormState = { status: "idle" | "error"; message?: string };
 
@@ -141,6 +143,10 @@ export async function setEpisodeStatus(episodeId: string, status: "draft" | "pub
     .from("podcast_episodes")
     .update({ status, published_at: status === "published" ? new Date().toISOString() : null })
     .eq("id", episodeId);
+
+  // Email subscribers after the response is sent; this only fires on the first publish
+  // and never throws, so it can't block or undo publishing.
+  if (status === "published") after(() => notifySubscribers("episode", episodeId));
 
   revalidatePath("/admin/podcast");
   revalidatePath("/podcast");

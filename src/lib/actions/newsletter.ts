@@ -1,7 +1,9 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
+import { unsubscribeByToken } from "@/lib/email/unsubscribe";
 
 export type NewsletterState = { status: "idle" | "success" | "error"; message?: string };
 
@@ -33,4 +35,11 @@ export async function subscribeToNewsletter(
   }
 
   return { status: "success", message: "Subscribed. Watch your inbox for the next issue." };
+}
+
+export async function unsubscribeFromNewsletter(formData: FormData) {
+  const token = String(formData.get("token") ?? "").trim();
+  const result = await unsubscribeByToken(token);
+  const status = result === "removed" || result === "not-found" ? "done" : result;
+  redirect(`/unsubscribe?status=${status}`);
 }

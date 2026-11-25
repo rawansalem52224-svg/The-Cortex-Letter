@@ -28,6 +28,7 @@ export type Post = {
   author_name: string;
   read_minutes: number;
   published_at: string | null;
+  notified_at?: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -47,6 +48,7 @@ export type WriterApplication = {
 export type NewsletterSubscriber = {
   id: string;
   email: string;
+  unsubscribe_token: string;
   created_at: string;
 };
 
@@ -93,6 +95,7 @@ export type PodcastEpisode = {
   status: PostStatus;
   author_id: string;
   published_at: string | null;
+  notified_at?: string | null;
   created_at: string;
   updated_at: string;
 };

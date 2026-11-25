@@ -63,6 +63,7 @@ create table if not exists public.posts (
   author_name text not null default '',
   read_minutes int not null default 5,
   published_at timestamptz,
+  notified_at timestamptz, -- set once subscribers have been emailed; never cleared on unpublish
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -167,6 +168,7 @@ create policy "Admins can update applications"
 create table if not exists public.newsletter_subscribers (
   id uuid primary key default gen_random_uuid(),
   email text not null unique,
+  unsubscribe_token uuid not null default gen_random_uuid() unique,
   created_at timestamptz not null default now()
 );
 
@@ -266,6 +268,7 @@ create table if not exists public.podcast_episodes (
   status text not null default 'draft' check (status in ('draft', 'published')),
   author_id uuid not null references public.profiles (id) on delete cascade,
   published_at timestamptz,
+  notified_at timestamptz, -- set once subscribers have been emailed; never cleared on unpublish
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -298,6 +301,24 @@ drop trigger if exists podcast_episodes_set_updated_at on public.podcast_episode
 create trigger podcast_episodes_set_updated_at
   before update on public.podcast_episodes
   for each row execute procedure public.set_updated_at();
+
+-- ─────────────────────────────────────────────────────────────
+-- Migration for existing databases (email notifications). Safe to re-run.
+-- New installs already get these columns from the table definitions above.
+-- ─────────────────────────────────────────────────────────────
+alter table public.newsletter_subscribers
+  add column if not exists unsubscribe_token uuid not null default gen_random_uuid();
+create unique index if not exists newsletter_subscribers_unsubscribe_token_key
+  on public.newsletter_subscribers (unsubscribe_token);
+
+alter table public.posts add column if not exists notified_at timestamptz;
+alter table public.podcast_episodes add column if not exists notified_at timestamptz;
+
+-- Anything already published counts as notified, so republishing it never emails.
+update public.posts set notified_at = coalesce(published_at, now())
+  where status = 'published' and notified_at is null;
+update public.podcast_episodes set notified_at = coalesce(published_at, now())
+  where status = 'published' and notified_at is null;
 
 -- ─────────────────────────────────────────────────────────────
 -- Make yourself an admin after your first signup:
