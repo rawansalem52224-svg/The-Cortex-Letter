@@ -65,6 +65,12 @@ async function sendNotifications(kind: ContentKind, id: string) {
   const table = kind === "post" ? "posts" : "podcast_episodes";
   const summaryColumn = kind === "post" ? "excerpt" : "description";
 
+  const testEmail = process.env.NOTIFY_ONLY_EMAIL?.trim();
+  if (testEmail) {
+    await sendTestNotification({ supabase, apiKey, from, kind, id, table, summaryColumn, testEmail });
+    return;
+  }
+
   // Claim the row. Only one request can flip notified_at from null, so only one sends.
   const { data: claimed, error: claimError } = await supabase
     .from(table)
@@ -78,13 +84,7 @@ async function sendNotifications(kind: ContentKind, id: string) {
   if (claimError) throw claimError;
   if (!claimed) return; // Already notified, or not actually published.
 
-  const row = claimed as unknown as Record<string, string>;
-  const notice: Notice = {
-    kind,
-    title: row.title,
-    summary: row[summaryColumn] ?? "",
-    url: `${SITE_URL}/${kind === "post" ? "articles" : "podcast"}/${row.slug}`,
-  };
+  const notice = toNotice(kind, claimed, summaryColumn);
 
   const subscribers = await fetchAllSubscribers(supabase);
   if (subscribers.length === 0) return;
@@ -115,7 +115,74 @@ async function sendNotifications(kind: ContentKind, id: string) {
   }
 }
 
-async function fetchAllSubscribers(supabase: NonNullable<ReturnType<typeof createAdminClient>>) {
+type AdminClient = NonNullable<ReturnType<typeof createAdminClient>>;
+
+function toNotice(kind: ContentKind, data: unknown, summaryColumn: string): Notice {
+  const row = data as Record<string, string>;
+  return {
+    kind,
+    title: row.title,
+    summary: row[summaryColumn] ?? "",
+    url: `${SITE_URL}/${kind === "post" ? "articles" : "podcast"}/${row.slug}`,
+  };
+}
+
+/**
+ * Test mode (NOTIFY_ONLY_EMAIL is set): emails only that one address, whether or not
+ * it is a subscriber, and never reads or writes notified_at — so it can be repeated
+ * freely and the real send still happens once test mode is turned off.
+ */
+async function sendTestNotification(opts: {
+  supabase: AdminClient;
+  apiKey: string;
+  from: string;
+  kind: ContentKind;
+  id: string;
+  table: string;
+  summaryColumn: string;
+  testEmail: string;
+}) {
+  const { supabase, apiKey, from, kind, id, table, summaryColumn, testEmail } = opts;
+
+  console.warn(
+    `[newsletter] TEST MODE: NOTIFY_ONLY_EMAIL is set. Sending ${kind} ${id} ONLY to ${testEmail}; ` +
+      "subscribers will not be emailed and notified_at will not be changed."
+  );
+
+  const { data, error } = await supabase
+    .from(table)
+    .select(`slug, title, ${summaryColumn}`)
+    .eq("id", id)
+    .eq("status", "published")
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) {
+    console.warn(`[newsletter] TEST MODE: ${kind} ${id} is not published; nothing sent.`);
+    return;
+  }
+
+  // Use the real unsubscribe token if the address happens to be subscribed.
+  const { data: existing } = await supabase
+    .from("newsletter_subscribers")
+    .select("unsubscribe_token")
+    .eq("email", testEmail)
+    .maybeSingle();
+
+  const subscriber: Subscriber = {
+    email: testEmail,
+    unsubscribe_token: existing?.unsubscribe_token ?? "test-mode",
+  };
+
+  const sent = await sendBatch(new Resend(apiKey), [
+    buildEmail(from, toNotice(kind, data, summaryColumn), subscriber),
+  ]);
+
+  if (sent) console.warn(`[newsletter] TEST MODE: sent ${kind} ${id} to ${testEmail}.`);
+  else console.error(`[newsletter] TEST MODE: failed to send ${kind} ${id} to ${testEmail}.`);
+}
+
+async function fetchAllSubscribers(supabase: AdminClient) {
   const subscribers: Subscriber[] = [];
 
   for (let from = 0; ; from += SUBSCRIBER_PAGE_SIZE) {
