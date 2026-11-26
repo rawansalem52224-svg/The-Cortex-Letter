@@ -62,6 +62,31 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           <span aria-hidden>&middot;</span>
           <span>{post.read_minutes} min read</span>
         </div>
+
+        <p className="font-data mt-4 flex items-center gap-2 text-sm text-muted">
+          <span
+            aria-hidden
+            className="inline-block h-3 w-3 shrink-0 rounded-sm"
+            style={{ backgroundColor: "color-mix(in srgb, #facc15 55%, transparent)" }}
+          />
+          {user ? (
+            <span>
+              Tip: select any passage to highlight it and add a note. Find them all in{" "}
+              <Link href="/notes" className="text-accent-strong hover:underline">
+                Quotes &amp; notes
+              </Link>
+              .
+            </span>
+          ) : (
+            <span>
+              Tip: select any passage to copy or share it.{" "}
+              <Link href="/login" className="text-accent-strong hover:underline">
+                Sign in
+              </Link>{" "}
+              to highlight and keep notes.
+            </span>
+          )}
+        </p>
       </div>
 
       {post.cover_image && (
