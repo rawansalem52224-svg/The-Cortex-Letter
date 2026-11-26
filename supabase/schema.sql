@@ -321,6 +321,57 @@ update public.podcast_episodes set notified_at = coalesce(published_at, now())
   where status = 'published' and notified_at is null;
 
 -- ─────────────────────────────────────────────────────────────
+-- post_highlights: a reader's private highlights and notes on articles.
+-- Safe to re-run on an existing database.
+-- ─────────────────────────────────────────────────────────────
+create table if not exists public.post_highlights (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  post_id uuid not null references public.posts (id) on delete cascade,
+  quote text not null check (char_length(quote) between 1 and 2000),
+  -- Character offsets into the article's text, plus surrounding text, so the
+  -- highlight can be found again (and re-located if the article is edited).
+  start_offset integer not null check (start_offset >= 0),
+  end_offset integer not null check (end_offset > start_offset),
+  prefix text not null default '' check (char_length(prefix) <= 64),
+  suffix text not null default '' check (char_length(suffix) <= 64),
+  color text not null check (color ~ '^#[0-9a-fA-F]{6}$'),
+  note text check (note is null or char_length(note) <= 2000),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists post_highlights_user_post_idx on public.post_highlights (user_id, post_id);
+
+alter table public.post_highlights enable row level security;
+
+drop policy if exists "Users can read their own highlights" on public.post_highlights;
+create policy "Users can read their own highlights"
+  on public.post_highlights for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can add their own highlights" on public.post_highlights;
+create policy "Users can add their own highlights"
+  on public.post_highlights for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can update their own highlights" on public.post_highlights;
+create policy "Users can update their own highlights"
+  on public.post_highlights for update
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can delete their own highlights" on public.post_highlights;
+create policy "Users can delete their own highlights"
+  on public.post_highlights for delete
+  using (auth.uid() = user_id);
+
+drop trigger if exists post_highlights_set_updated_at on public.post_highlights;
+create trigger post_highlights_set_updated_at
+  before update on public.post_highlights
+  for each row execute procedure public.set_updated_at();
+
+-- ─────────────────────────────────────────────────────────────
 -- Make yourself an admin after your first signup:
 --
 --   update public.profiles set role = 'admin' where id =

@@ -5,6 +5,7 @@ import { sanitizePostHtml } from "@/lib/sanitize";
 import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
 import { getReactionSummary } from "@/lib/reactions";
 import { getCurrentUser } from "@/lib/profile";
+import { getHighlightsForPost } from "@/lib/highlights";
 import { CategoryPill } from "@/components/category-pill";
 import { ArticleCard } from "@/components/article-card";
 import { ReadingProgress } from "@/components/reading-progress";
@@ -12,6 +13,7 @@ import { LikeButton } from "@/components/like-button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { ShareButton } from "@/components/share-button";
 import { CommentSection } from "@/components/comment-section";
+import { ArticleHighlighter } from "@/components/article-highlighter";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -28,10 +30,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const post = await getPostBySlug(slug);
   if (!post) notFound();
 
-  const [all, reactions, user] = await Promise.all([
+  const [all, reactions, user, highlights] = await Promise.all([
     getPublishedPosts(),
     getReactionSummary(post.id),
     getCurrentUser(),
+    getHighlightsForPost(post.id),
   ]);
   const more = all.filter((p) => p.id !== post.id && p.category === post.category).slice(0, 2);
   const date = post.published_at ?? post.created_at;
@@ -73,9 +76,13 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       )}
 
       <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
-        <div
-          className="prose-article"
-          dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }}
+        <ArticleHighlighter
+          html={sanitizePostHtml(post.content)}
+          postId={post.id}
+          title={post.title}
+          authorName={post.author_name}
+          signedIn={Boolean(user)}
+          initialHighlights={highlights}
         />
 
         <div className="mt-10 flex flex-wrap items-center gap-3 border-y border-border py-6">

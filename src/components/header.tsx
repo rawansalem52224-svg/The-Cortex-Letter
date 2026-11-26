@@ -50,6 +50,12 @@ export async function Header() {
                 Favorites
               </Link>
               <Link
+                href="/notes"
+                className="font-data text-sm text-muted transition-colors hover:text-ink"
+              >
+                Notes
+              </Link>
+              <Link
                 href={dashboardHref ?? "/account"}
                 className="font-data text-sm text-muted transition-colors hover:text-ink"
               >

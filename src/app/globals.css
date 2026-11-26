@@ -207,6 +207,32 @@
     border-top: 1px solid var(--border);
     margin: 3em 0;
   }
+
+  /* Reader highlights. Background colour is set inline per highlight. */
+  .prose-article mark[data-hl] {
+    color: inherit;
+    border-radius: 3px;
+    padding: 0.05em 0;
+    cursor: pointer;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    transition: box-shadow 0.2s;
+  }
+
+  .prose-article mark[data-hl][data-has-note] {
+    text-decoration: underline dotted;
+    text-decoration-color: var(--muted);
+    text-underline-offset: 4px;
+  }
+
+  .prose-article mark[data-hl]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .prose-article mark.hl-flash {
+    box-shadow: 0 0 0 3px var(--accent);
+  }
 }
 
 /* Signal pulse: an action potential traveling along an axon line. */

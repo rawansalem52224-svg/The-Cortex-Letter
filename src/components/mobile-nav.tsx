@@ -57,6 +57,15 @@ export function MobileNav({
                 Favorites
               </Link>
             )}
+            {isSignedIn && (
+              <Link
+                href="/notes"
+                onClick={() => setOpen(false)}
+                className="font-data border-b border-border py-3.5 text-base text-ink"
+              >
+                Quotes &amp; notes
+              </Link>
+            )}
             <Link
               href={isSignedIn ? dashboardHref ?? "/account" : "/login"}
               onClick={() => setOpen(false)}

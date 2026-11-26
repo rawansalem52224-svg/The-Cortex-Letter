@@ -54,6 +54,23 @@ export type NewsletterSubscriber = {
 
 export type ReactionType = "like" | "favorite";
 
+export type Highlight = {
+  id: string;
+  post_id: string;
+  quote: string;
+  start_offset: number;
+  end_offset: number;
+  prefix: string;
+  suffix: string;
+  color: string;
+  note: string | null;
+  created_at: string;
+};
+
+export type HighlightWithPost = Highlight & {
+  post: Pick<Post, "slug" | "title" | "author_name"> | null;
+};
+
 export type PostReaction = {
   id: string;
   post_id: string;
