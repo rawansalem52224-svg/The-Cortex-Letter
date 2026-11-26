@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import readingTime from "reading-time";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizePostHtml } from "@/lib/sanitize";
 import { createClient } from "@/lib/supabase/server";
 import { isSupabaseConfigured } from "@/lib/supabase/config";
 import { getCurrentProfile } from "@/lib/profile";
@@ -32,7 +32,7 @@ function readFields(formData: FormData) {
   return {
     title: String(formData.get("title") ?? "").trim(),
     excerpt: String(formData.get("excerpt") ?? "").trim(),
-    content: DOMPurify.sanitize(rawContent),
+    content: sanitizePostHtml(rawContent),
     category: String(formData.get("category") ?? "").trim(),
     coverImage: String(formData.get("cover_image") ?? "").trim(),
   };

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format } from "date-fns";
-import DOMPurify from "isomorphic-dompurify";
+import { sanitizePostHtml } from "@/lib/sanitize";
 import { getPostBySlug, getPublishedPosts } from "@/lib/posts";
 import { getReactionSummary } from "@/lib/reactions";
 import { getCurrentUser } from "@/lib/profile";
@@ -75,7 +75,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       <div className="mx-auto max-w-3xl px-5 py-10 sm:px-8">
         <div
           className="prose-article"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
+          dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }}
         />
 
         <div className="mt-10 flex flex-wrap items-center gap-3 border-y border-border py-6">

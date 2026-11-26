@@ -190,15 +190,16 @@ export default function RichTextEditor({
  * When you render saved HTML back on the public article page, don't use
  * dangerouslySetInnerHTML on raw, unsanitized HTML if there's any chance
  * untrusted users could submit posts (e.g. via the writer-application
- * workflow). Run it through a sanitizer first, e.g.:
+ * workflow). Run it through the shared sanitizer first:
  *
- *   npm install isomorphic-dompurify
- *
- *   import DOMPurify from "isomorphic-dompurify";
+ *   import { sanitizePostHtml } from "@/lib/sanitize";
  *   <div
  *     className="prose-article max-w-none"
- *     dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content_html) }}
+ *     dangerouslySetInnerHTML={{ __html: sanitizePostHtml(post.content) }}
  *   />
+ *
+ * Keep the allowlist in src/lib/sanitize.ts in sync with the extensions
+ * enabled here.
  *
  * Since this site already has an admin-approval step before someone
  * becomes a writer, risk is lower than a fully open form — but
